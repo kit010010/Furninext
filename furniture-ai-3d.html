@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Furniture 3D</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0d0d;--sur:#161616;--sur2:#1e1e1e;--acc:#c8a96e;--acc2:#e8c99e;--tx:#f0ebe3;--dim:#888;--bdr:#2a2a2a;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;min-height:100vh;}
+.wrap{max-width:960px;margin:0 auto;padding:36px 20px;}
+header{text-align:center;margin-bottom:40px;}
+.eye{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--acc);margin-bottom:10px;}
+h1{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,5vw,3.2rem);background:linear-gradient(135deg,var(--tx),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px;}
+header p{color:var(--dim);font-size:14px;}
+.div{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--acc),transparent);margin:16px auto;}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.pb{background:var(--sur2);border:1px solid var(--bdr);border-radius:20px;color:var(--dim);font-size:13px;padding:6px 15px;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.pb:hover,.pb.on{border-color:var(--acc);color:var(--acc);background:rgba(200,169,110,.08);}
+.card{background:var(--sur);border:1px solid var(--bdr);border-radius:16px;padding:26px;margin-bottom:18px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--acc),transparent);}
+.sl{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:1px;background:var(--bdr);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.fg{display:flex;flex-direction:column;gap:6px;}
+.fg.full{grid-column:1/-1;}
+label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);font-weight:500;}
+input,select,textarea{background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;transition:border-color .2s;outline:none;width:100%;}
+input:focus,select:focus{border-color:var(--acc);}
+select option{background:#1e1e1e;}
+textarea{resize:vertical;min-height:66px;}
+.gbtn{width:100%;background:linear-gradient(135deg,var(--acc),#a8864e);border:none;border-radius:10px;color:#0d0d0d;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;padding:14px;cursor:pointer;transition:all .3s;text-transform:uppercase;}
+.gbtn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px rgba(200,169,110,.3);}
+.gbtn:disabled{opacity:.5;cursor:not-allowed;}
+.bi{display:flex;align-items:center;justify-content:center;gap:9px;}
+.sp{width:16px;height:16px;border:2px solid rgba(13,13,13,.2);border-top-color:#0d0d0d;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+/* Viewer */
+.vcard{display:none;}
+.vwrap{position:relative;border-radius:12px;overflow:hidden;margin-bottom:16px;background:#111;border:1px solid var(--bdr);}
+#c3d{width:100%;height:440px;display:block;cursor:grab;}
+#c3d:active{cursor:grabbing;}
+.hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border:1px solid var(--bdr);border-radius:20px;color:var(--dim);font-size:12px;padding:5px 14px;pointer-events:none;white-space:nowrap;}
+.hint b{color:var(--acc);}
+.ctrls{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.cb{background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;color:var(--dim);font-size:12px;padding:7px 12px;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;flex:1;text-align:center;}
+.cb:hover{border-color:var(--acc);color:var(--acc);}
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:16px;}
+.si{background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;padding:12px;text-align:center;}
+.sv{font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--acc);display:block;margin-bottom:2px;}
+.sl2{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
+.db{background:var(--sur2);border-left:2px solid var(--acc);border-radius:0 8px 8px 0;padding:16px;margin-bottom:16px;line-height:1.7;font-size:14px;}
+.tags{display:flex;flex-wrap:wrap;gap:6px;}
+.tag{background:rgba(200,169,110,.1);border:1px solid rgba(200,169,110,.2);border-radius:20px;color:var(--acc2);font-size:12px;padding:4px 11px;}
+@media(max-width:560px){.g2{grid-template-columns:1fr;}.fg.full{grid-column:1;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eye">✦ 3D Interactive Design</div>
+  <h1>AI Furniture Designer</h1>
+  <div class="div"></div>
+  <p>บอกสเปค แล้ว AI สร้างโมเดล 3D ให้หมุนดูได้ทันที</p>
+</header>
+
+<div class="presets">
+  <button class="pb" onclick="lp('chair',this)">🪑 เก้าอี้</button>
+  <button class="pb" onclick="lp('table',this)">🪵 โต๊ะ</button>
+  <button class="pb" onclick="lp('shelf',this)">📚 ชั้นวาง</button>
+  <button class="pb" onclick="lp('sofa',this)">🛋️ โซฟา</button>
+  <button class="pb" onclick="lp('bed',this)">🛏️ เตียง</button>
+  <button class="pb" onclick="lp('cabinet',this)">🗄️ ตู้</button>
+  <button class="pb" onclick="lp('desk',this)">💻 โต๊ะทำงาน</button>
+</div>
+
+<div class="card">
+  <div class="sl">ข้อมูลเฟอร์นิเจอร์</div>
+  <div class="g2">
+    <div class="fg">
+      <label>ประเภท</label>
+      <select id="ft">
+        <option value="">เลือก...</option>
+        <option value="chair">เก้าอี้</option>
+        <option value="table">โต๊ะ</option>
+        <option value="shelf">ชั้นวางของ</option>
+        <option value="sofa">โซฟา</option>
+        <option value="bed">เตียง</option>
+        <option value="cabinet">ตู้เสื้อผ้า</option>
+        <option value="desk">โต๊ะทำงาน</option>
+        <option value="coffee">โต๊ะกาแฟ</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>สไตล์</label>
+      <select id="st">
+        <option value="modern">โมเดิร์น</option>
+        <option value="minimal">มินิมอล</option>
+        <option value="scandi">สแกนดิเนเวียน</option>
+        <option value="industrial">อินดัสเทรียล</option>
+        <option value="classic">คลาสสิก</option>
+        <option value="japan">ญี่ปุ่น</option>
+      </select>
+    </div>
+    <div class="fg"><label>กว้าง (cm)</label><input type="number" id="fw" placeholder="60"></div>
+    <div class="fg"><label>ยาว (cm)</label><input type="number" id="fd" placeholder="60"></div>
+    <div class="fg"><label>สูง (cm)</label><input type="number" id="fh" placeholder="90"></div>
+    <div class="fg">
+      <label>วัสดุ</label>
+      <select id="fm">
+        <option value="teak">ไม้สัก</option>
+        <option value="rubber">ไม้ยางพารา</option>
+        <option value="mdf">ไม้ MDF</option>
+        <option value="steel">เหล็ก</option>
+        <option value="fabric">ผ้าและโฟม</option>
+        <option value="leather">หนัง</option>
+        <option value="mix">ไม้ผสมเหล็ก</option>
+      </select>
+    </div>
+    <div class="fg full">
+      <label>รายละเอียดเพิ่มเติม</label>
+      <textarea id="fx" placeholder="เช่น ลิ้นชัก 2 ใบ, ที่วางแขน, ล้อเลื่อน..."></textarea>
+    </div>
+  </div>
+  <button class="gbtn" id="gb" onclick="gen()">
+    <div class="bi"><div class="sp" id="sp"></div><span id="bt">✦ สร้างโมเดล 3D</span></div>
+  </button>
+</div>
+
+<div class="card vcard" id="vc">
+  <div class="sl">โมเดล 3D — <span style="color:var(--dim);font-size:10px;letter-spacing:1px">ลากเพื่อหมุน</span></div>
+  <div class="vwrap">
+    <canvas id="c3d"></canvas>
+    <div class="hint"><b>ลาก</b> หมุน &nbsp;|&nbsp; <b>Scroll</b> ซูม &nbsp;|&nbsp; <b>สองนิ้ว</b> บนมือถือ</div>
+  </div>
+  <div class="ctrls">
+    <button class="cb" onclick="resetCam()">🏠 รีเซ็ต</button>
+    <button class="cb" onclick="toggleWire()">🔲 Wireframe</button>
+    <button class="cb" onclick="toggleAuto()">🔄 หมุนเอง</button>
+    <button class="cb" onclick="toggleLight()">💡 แสง</button>
+  </div>
+  <div class="sg" id="sg"></div>
+  <div class="db" id="db"></div>
+  <div class="tags" id="tg"></div>
+</div>
+</div>
+
+<script>
+// ─── THREE.JS inline (r128 CDN) ───
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
+  onload="threeReady=true"
+  onerror="document.getElementById('bt').textContent='โหลด 3D ไม่ได้ — ลองรีเฟรช'">
+</script>
+<script>
+var threeReady = false;
+
+// ─── Presets ───
+const PS={
+  chair:{t:'chair',s:'modern',w:55,d:55,h:90,m:'teak',x:'พนักพิงสูง ที่วางแขน'},
+  table:{t:'table',s:'minimal',w:120,d:60,h:75,m:'mix',x:'ขาเหล็กสีดำ'},
+  shelf:{t:'shelf',s:'scandi',w:80,d:30,h:180,m:'rubber',x:'5 ชั้น'},
+  sofa:{t:'sofa',s:'classic',w:200,d:85,h:85,m:'fabric',x:'3 ที่นั่ง'},
+  bed:{t:'bed',s:'modern',w:160,d:200,h:50,m:'mdf',x:'หัวเตียงหุ้มผ้า'},
+  cabinet:{t:'cabinet',s:'minimal',w:120,d:55,h:200,m:'mdf',x:'บานเลื่อน 2 บาน'},
+  desk:{t:'desk',s:'industrial',w:140,d:70,h:75,m:'mix',x:'ชั้นวางด้านข้าง'}
+};
+const MN={teak:'ไม้สัก',rubber:'ไม้ยางพารา',mdf:'ไม้ MDF',steel:'เหล็ก',fabric:'ผ้าและโฟม',leather:'หนัง',mix:'ไม้ผสมเหล็ก'};
+const TN={chair:'เก้าอี้',table:'โต๊ะ',shelf:'ชั้นวางของ',sofa:'โซฟา',bed:'เตียง',cabinet:'ตู้เสื้อผ้า',desk:'โต๊ะทำงาน',coffee:'โต๊ะกาแฟ'};
+const SN={modern:'โมเดิร์น',minimal:'มินิมอล',scandi:'สแกนดิเนเวียน',industrial:'อินดัสเทรียล',classic:'คลาสสิก',japan:'ญี่ปุ่น'};
+const MC={
+  teak:{a:0x8B5E3C,b:0x5A3A1A,c:0xC49A6C},
+  rubber:{a:0x9C7248,b:0x6B4E28,c:0xC8A070},
+  mdf:{a:0x8A7060,b:0x5A4A3A,c:0xBAA894},
+  steel:{a:0x606878,b:0x3A4050,c:0x8898AA},
+  fabric:{a:0x5A6880,b:0x3A4860,c:0x8AA0B0},
+  leather:{a:0x6B4030,b:0x3A2010,c:0x9A6850},
+  mix:{a:0x705A48,b:0x403020,c:0xA08060}
+};
+
+function lp(k,btn){
+  const p=PS[k];
+  document.getElementById('ft').value=p.t;
+  document.getElementById('st').value=p.s;
+  document.getElementById('fw').value=p.w;
+  document.getElementById('fd').value=p.d;
+  document.getElementById('fh').value=p.h;
+  document.getElementById('fm').value=p.m;
+  document.getElementById('fx').value=p.x;
+  document.querySelectorAll('.pb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+// ─── Three state ───
+var renderer3,scene3,camera3,group3;
+var rotX=0.3,rotY=0.5,zoom=6;
+var drag=false,px=0,py=0;
+var wireMode=false,autoRot=false,lightIdx=0;
+
+function hexToRgb(hex){return{r:(hex>>16)&255,g:(hex>>8)&255,b:hex&255};}
+function rgbToHex(r,g,b){return(r<<16)|(g<<8)|b;}
+
+function makeWoodTexture(colorA,colorB){
+  var size=512;
+  var cv=document.createElement('canvas');
+  cv.width=size; cv.height=size;
+  var ctx=cv.getContext('2d');
+  var ca=hexToRgb(colorA), cb=hexToRgb(colorB);
+
+  // gradient base — slightly lighter top
+  var grd=ctx.createLinearGradient(0,0,size,size);
+  grd.addColorStop(0,'rgba('+Math.min(ca.r+18,255)+','+Math.min(ca.g+12,255)+','+Math.min(ca.b+8,255)+',1)');
+  grd.addColorStop(1,'rgba('+ca.r+','+ca.g+','+ca.b+',1)');
+  ctx.fillStyle=grd;
+  ctx.fillRect(0,0,size,size);
+
+  // long wavy grain lines
+  for(var i=0;i<60;i++){
+    var ys=Math.random()*size;
+    var lw=0.4+Math.random()*3;
+    var alpha=0.08+Math.random()*0.18;
+    var dark=Math.random()>0.5;
+    var r=dark?Math.max(cb.r-10,0):Math.min(cb.r+15,255);
+    var g2=dark?Math.max(cb.g-8,0):Math.min(cb.g+10,255);
+    var b2=dark?Math.max(cb.b-5,0):Math.min(cb.b+8,255);
+    ctx.strokeStyle='rgba('+r+','+g2+','+b2+','+alpha+')';
+    ctx.lineWidth=lw;
+    ctx.beginPath();
+    ctx.moveTo(0,ys);
+    var yc=ys;
+    for(var x=0;x<=size;x+=6){
+      yc+=(Math.random()-0.5)*5;
+      ctx.lineTo(x,yc);
+    }
+    ctx.stroke();
+  }
+
+  // knot rings (optional, rare)
+  if(Math.random()>0.5){
+    var kx=size*0.3+Math.random()*size*0.4, ky=size*0.2+Math.random()*size*0.6;
+    for(var r2=4;r2<30;r2+=3){
+      ctx.strokeStyle='rgba('+Math.max(cb.r-20,0)+','+Math.max(cb.g-15,0)+','+Math.max(cb.b-10,0)+','+(0.04+Math.random()*0.06)+')';
+      ctx.lineWidth=1.5;
+      ctx.beginPath();
+      ctx.ellipse(kx,ky,r2,r2*0.5,0.3,0,Math.PI*2);
+      ctx.stroke();
+    }
+  }
+
+  // subtle noise
+  var id=ctx.getImageData(0,0,size,size);
+  for(var i=0;i<id.data.length;i+=4){
+    var n=(Math.random()-0.5)*12;
+    id.data[i]=Math.min(255,Math.max(0,id.data[i]+n));
+    id.data[i+1]=Math.min(255,Math.max(0,id.data[i+1]+n*0.8));
+    id.data[i+2]=Math.min(255,Math.max(0,id.data[i+2]+n*0.6));
+  }
+  ctx.putImageData(id,0,0);
+
+  var tex=new THREE.CanvasTexture(cv);
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
+  tex.repeat.set(2,2);
+  return tex;
+}
+
+function makeLeatherTexture(col){
+  var size=256;
+  var cv=document.createElement('canvas');
+  cv.width=size; cv.height=size;
+  var ctx=cv.getContext('2d');
+  var c=hexToRgb(col);
+  ctx.fillStyle='rgb('+c.r+','+c.g+','+c.b+')';
+  ctx.fillRect(0,0,size,size);
+
+  // pebble grain pattern
+  for(var i=0;i<400;i++){
+    var lx=Math.random()*size, ly=Math.random()*size;
+    var lr=1+Math.random()*4;
+    var bright=Math.random()>0.5;
+    var dr=bright?18:-18;
+    ctx.strokeStyle='rgba('+(c.r+dr)+','+(c.g+Math.round(dr*0.8))+','+(c.b+Math.round(dr*0.6))+','+(0.06+Math.random()*0.12)+')';
+    ctx.lineWidth=0.5+Math.random();
+    ctx.beginPath();
+    ctx.ellipse(lx,ly,lr,lr*0.7,Math.random()*Math.PI,0,Math.PI*2);
+    ctx.stroke();
+  }
+  // stitching seam lines
+  ctx.setLineDash([4,6]);
+  ctx.strokeStyle='rgba('+(Math.min(c.r+40,255))+','+(Math.min(c.g+30,255))+','+(Math.min(c.b+20,255))+',0.25)';
+  ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(12,0); ctx.lineTo(12,size); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(size-12,0); ctx.lineTo(size-12,size); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,12); ctx.lineTo(size,12); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,size-12); ctx.lineTo(size,size-12); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // subtle noise
+  var id=ctx.getImageData(0,0,size,size);
+  for(var i=0;i<id.data.length;i+=4){
+    var n=(Math.random()-0.5)*8;
+    id.data[i]=Math.min(255,Math.max(0,id.data[i]+n));
+    id.data[i+1]=Math.min(255,Math.max(0,id.data[i+1]+n));
+    id.data[i+2]=Math.min(255,Math.max(0,id.data[i+2]+n));
+  }
+  ctx.putImageData(id,0,0);
+  var tex=new THREE.CanvasTexture(cv);
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
+  tex.repeat.set(3,3);
+  return tex;
+}
+
+function makeFabricTexture(col){
+  var size=256;
+  var cv=document.createElement('canvas');
+  cv.width=size; cv.height=size;
+  var ctx=cv.getContext('2d');
+  var c=hexToRgb(col);
+
+  ctx.fillStyle='rgb('+c.r+','+c.g+','+c.b+')';
+  ctx.fillRect(0,0,size,size);
+
+  // woven crosshatch threads
+  var step=5;
+  for(var i=0;i<size;i+=step){
+    var even=Math.floor(i/step)%2===0;
+    ctx.globalAlpha=even?0.07:0.04;
+    ctx.strokeStyle=even?'rgba(255,255,255,1)':'rgba(0,0,0,1)';
+    ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,size); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(size,i); ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+
+  // subtle noise
+  var id=ctx.getImageData(0,0,size,size);
+  for(var i=0;i<id.data.length;i+=4){
+    var n=(Math.random()-0.5)*10;
+    id.data[i]=Math.min(255,Math.max(0,id.data[i]+n));
+    id.data[i+1]=Math.min(255,Math.max(0,id.data[i+1]+n));
+    id.data[i+2]=Math.min(255,Math.max(0,id.data[i+2]+n));
+  }
+  ctx.putImageData(id,0,0);
+
+  var tex=new THREE.CanvasTexture(cv);
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
+  tex.repeat.set(4,4);
+  return tex;
+}
+
+function makeMetalTexture(col){
+  var size=256;
+  var cv=document.createElement('canvas');
+  cv.width=size; cv.height=size;
+  var ctx=cv.getContext('2d');
+  var c=hexToRgb(col);
+
+  // brushed metal — horizontal streaks
+  var grd=ctx.createLinearGradient(0,0,size,0);
+  grd.addColorStop(0,'rgb('+Math.min(c.r+30,255)+','+Math.min(c.g+30,255)+','+Math.min(c.b+35,255)+')');
+  grd.addColorStop(0.4,'rgb('+c.r+','+c.g+','+c.b+')');
+  grd.addColorStop(0.6,'rgb('+Math.min(c.r+50,255)+','+Math.min(c.g+50,255)+','+Math.min(c.b+55,255)+')');
+  grd.addColorStop(1,'rgb('+Math.max(c.r-20,0)+','+Math.max(c.g-20,0)+','+Math.max(c.b-20,0)+')');
+  ctx.fillStyle=grd;
+  ctx.fillRect(0,0,size,size);
+
+  // fine horizontal brush lines
+  for(var i=0;i<size;i+=1){
+    if(Math.random()>0.6){
+      ctx.strokeStyle='rgba(255,255,255,'+(0.02+Math.random()*0.06)+')';
+      ctx.lineWidth=0.5;
+      ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(size,i); ctx.stroke();
+    }
+  }
+  // scratches
+  for(var i=0;i<8;i++){
+    var sy2=Math.random()*size;
+    ctx.strokeStyle='rgba(255,255,255,'+(0.04+Math.random()*0.08)+')';
+    ctx.lineWidth=0.3;
+    ctx.beginPath(); ctx.moveTo(0,sy2); ctx.lineTo(size,sy2+(Math.random()-0.5)*20); ctx.stroke();
+  }
+
+  var tex=new THREE.CanvasTexture(cv);
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
+  tex.repeat.set(2,4);
+  return tex;
+}
+
+function initRenderer(){
+  const canvas=document.getElementById('c3d');
+  const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||800;
+  const H=440;
+  canvas.width=W; canvas.height=H;
+
+  renderer3=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:false});
+  renderer3.setSize(W,H,false);
+  renderer3.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer3.shadowMap.enabled=true;
+  renderer3.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer3.physicallyCorrectLights=true;
+  renderer3.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer3.toneMappingExposure=1.1;
+  renderer3.setClearColor(0x0e0e12,1);
+
+  scene3=new THREE.Scene();
+  scene3.fog=new THREE.FogExp2(0x0e0e12,0.045);
+
+  camera3=new THREE.PerspectiveCamera(38,W/H,0.05,60);
+  camera3.position.set(0,1.8,zoom);
+  camera3.lookAt(0,1,0);
+
+  // ── Lights ──────────────────────────────
+  // Ambient (warm fill)
+  var amb=new THREE.AmbientLight(0xfff0d0,0.55);
+  amb.name='amb';
+  scene3.add(amb);
+
+  // Key light (warm sun from upper-left-front)
+  var sun=new THREE.DirectionalLight(0xfff5e8,2.2);
+  sun.position.set(3,8,4);
+  sun.castShadow=true;
+  sun.shadow.mapSize.width=4096;
+  sun.shadow.mapSize.height=4096;
+  sun.shadow.camera.near=0.5;
+  sun.shadow.camera.far=30;
+  sun.shadow.camera.left=-5;
+  sun.shadow.camera.right=5;
+  sun.shadow.camera.top=5;
+  sun.shadow.camera.bottom=-5;
+  sun.shadow.bias=-0.0003;
+  sun.name='sun';
+  scene3.add(sun);
+
+  // Fill light (cool blue from right-back)
+  var fill=new THREE.DirectionalLight(0xb0c8ff,0.6);
+  fill.position.set(-5,3,-4);
+  scene3.add(fill);
+
+  // Rim light (warm accent from behind)
+  var rim=new THREE.DirectionalLight(0xffc880,0.9);
+  rim.position.set(0,2,-6);
+  scene3.add(rim);
+
+  // Soft under-bounce
+  var bounce=new THREE.PointLight(0xffe8c0,0.4,12);
+  bounce.position.set(0,-1,3);
+  scene3.add(bounce);
+
+  // ── Floor (subtle reflective) ───────────
+  var fgeo=new THREE.PlaneGeometry(20,20);
+  var fmat=new THREE.MeshStandardMaterial({
+    color:0x111116,
+    roughness:0.55,
+    metalness:0.3,
+    envMapIntensity:0.5
+  });
+  var floor=new THREE.Mesh(fgeo,fmat);
+  floor.rotation.x=-Math.PI/2;
+  floor.receiveShadow=true;
+  scene3.add(floor);
+
+  // ── Grid (subtle) ──────────────────────
+  var grid=new THREE.GridHelper(14,28,0x1a1a22,0x161618);
+  grid.position.y=0.001;
+  scene3.add(grid);
+
+  // ── Soft environment sphere ─────────────
+  var envGeo=new THREE.SphereGeometry(30,16,16);
+  var envMat=new THREE.MeshBasicMaterial({
+    color:0x0a0a14,
+    side:THREE.BackSide
+  });
+  scene3.add(new THREE.Mesh(envGeo,envMat));
+
+  group3=new THREE.Group();
+  scene3.add(group3);
+
+  // Mouse
+  canvas.addEventListener('mousedown',function(e){drag=true;px=e.clientX;py=e.clientY;e.preventDefault();});
+  window.addEventListener('mouseup',function(){drag=false;});
+  window.addEventListener('mousemove',function(e){
+    if(!drag)return;
+    rotY+=(e.clientX-px)*0.009; rotX+=(e.clientY-py)*0.009;
+    rotX=Math.max(-1.4,Math.min(1.4,rotX));
+    px=e.clientX;py=e.clientY;
+  });
+  canvas.addEventListener('wheel',function(e){
+    e.preventDefault();
+    zoom=Math.max(1.5,Math.min(10,zoom+e.deltaY*0.008));
+  },{passive:false});
+
+  // Touch
+  var td=0;
+  canvas.addEventListener('touchstart',function(e){
+    if(e.touches.length===1){drag=true;px=e.touches[0].clientX;py=e.touches[0].clientY;}
+    if(e.touches.length===2){var dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY;td=Math.sqrt(dx*dx+dy*dy);}
+    e.preventDefault();
+  },{passive:false});
+  canvas.addEventListener('touchmove',function(e){
+    if(e.touches.length===1&&drag){
+      rotY+=(e.touches[0].clientX-px)*0.011;rotX+=(e.touches[0].clientY-py)*0.011;
+      rotX=Math.max(-1.4,Math.min(1.4,rotX));
+      px=e.touches[0].clientX;py=e.touches[0].clientY;
+    }
+    if(e.touches.length===2){
+      var dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY;
+      var nd=Math.sqrt(dx*dx+dy*dy);
+      zoom=Math.max(1.5,Math.min(10,zoom-(nd-td)*0.015));
+      td=nd;
+    }
+    e.preventDefault();
+  },{passive:false});
+  canvas.addEventListener('touchend',function(){drag=false;});
+
+  window.addEventListener('resize',function(){
+    var nw=canvas.parentElement.offsetWidth||800;
+    renderer3.setSize(nw,H,false);
+    camera3.aspect=nw/H;
+    camera3.updateProjectionMatrix();
+  });
+
+  loop();
+}
+
+var curZoom=6,curRotX=0.3,curRotY=0.5;
+function loop(){
+  requestAnimationFrame(loop);
+  if(autoRot) rotY+=0.006;
+  // smooth easing
+  curRotX+=(rotX-curRotX)*0.1;
+  curRotY+=(rotY-curRotY)*0.1;
+  curZoom+=(zoom-curZoom)*0.1;
+  if(group3){group3.rotation.x=curRotX;group3.rotation.y=curRotY;}
+  camera3.position.set(0,1.6+curZoom*0.1,curZoom);
+  camera3.lookAt(0,1,0);
+  renderer3.render(scene3,camera3);
+}
+
+// ─── Build Furniture ───
+function mkMat(col,rough,metal,map){
+  var opts={color:col,roughness:rough!==undefined?rough:0.7,metalness:metal!==undefined?metal:0.05,wireframe:wireMode};
+  if(map) opts.map=map;
+  return new THREE.MeshStandardMaterial(opts);
+}
+
+function mkWoodMat(c,rough){
+  var colA=typeof c==='object'?c.a:c;
+  var colB=typeof c==='object'?c.b:Math.max(c-0x181008,0);
+  var tex=makeWoodTexture(colA,colB);
+  return new THREE.MeshStandardMaterial({color:colA,map:tex,roughness:rough||0.70,metalness:0.0,envMapIntensity:0.3,wireframe:wireMode});
+}
+
+function mkLeatherMat(col){
+  var tex=makeLeatherTexture(col);
+  return new THREE.MeshStandardMaterial({color:col,map:tex,roughness:0.55,metalness:0.05,envMapIntensity:0.5,wireframe:wireMode});
+}
+
+function mkFabricMat(col){
+  var tex=makeFabricTexture(col);
+  return new THREE.MeshStandardMaterial({color:col,map:tex,roughness:0.90,metalness:0.0,wireframe:wireMode});
+}
+
+function mkMetalMat(col){
+  var tex=makeMetalTexture(col||0x4A5060);
+  return new THREE.MeshStandardMaterial({color:col||0x4A5060,map:tex,roughness:0.22,metalness:0.92,envMapIntensity:1.0,wireframe:wireMode});
+}
+
+function addBox(mat,sx,sy,sz,px,py,pz){
+  var g=new THREE.BoxGeometry(sx,sy,sz,1,1,1);
+  var m=new THREE.Mesh(g,mat);
+  m.position.set(px,py,pz);
+  m.castShadow=true; m.receiveShadow=true;
+  group3.add(m);
+  return m;
+}
+
+function addRoundBox(mat,sx,sy,sz,px,py,pz){
+  // simulate rounded box with slightly chamfered look via scale
+  var g=new THREE.BoxGeometry(sx,sy,sz,2,2,2);
+  var pos=g.attributes.position;
+  for(var i=0;i<pos.count;i++){
+    var x=pos.getX(i),y=pos.getY(i),z=pos.getZ(i);
+    var r=0.012;
+    pos.setXYZ(i,
+      Math.sign(x)*(Math.abs(x)-r*0.5),
+      Math.sign(y)*(Math.abs(y)-r*0.5),
+      Math.sign(z)*(Math.abs(z)-r*0.5)
+    );
+  }
+  pos.needsUpdate=true;
+  g.computeVertexNormals();
+  var m=new THREE.Mesh(g,mat);
+  m.position.set(px,py,pz);
+  m.castShadow=true; m.receiveShadow=true;
+  group3.add(m);
+  return m;
+}
+
+function addCyl(mat,r,h,px,py,pz,rx,rz){
+  var g=new THREE.CylinderGeometry(r,r*1.05,h,16);
+  var m=new THREE.Mesh(g,mat);
+  m.position.set(px,py,pz);
+  if(rx)m.rotation.x=rx;
+  if(rz)m.rotation.z=rz;
+  m.castShadow=true; m.receiveShadow=true;
+  group3.add(m);
+  return m;
+}
+
+function parseExtra(extra){
+  var e=extra||'';
+  return {
+    raw:e,
+    has:function(re){return re.test(e);},
+    num:function(re,def){var m=e.match(re);return m?Math.max(1,parseInt(m[1])):def;},
+    // ล้อเลื่อน
+    wheels:/ล้อ|ล้อเลื่อน|caster|wheel/i.test(e),
+    // ลิ้นชัก
+    drawers:(function(){var m=e.match(/ลิ้นชัก\s*(\d+)|(\d+)\s*ลิ้นชัก/);return m?Math.min(parseInt(m[1]||m[2]),6):0;}()),
+    // ที่วางแขน
+    noArm:/ไม่มีที่วางแขน|no.?arm/i.test(e),
+    leftArm:/ซ้ายอย่างเดียว|แขนซ้าย|left.?arm/i.test(e),
+    rightArm:/ขวาอย่างเดียว|แขนขวา|right.?arm/i.test(e),
+    // จำนวนที่นั่ง
+    seats:(function(){var m=e.match(/(\d+)\s*ที่นั่ง|(\d+)\s*seat/i);return m?Math.min(Math.max(parseInt(m[1]||m[2]),1),5):3;}()),
+    // ชั้น
+    shelves:(function(){var m=e.match(/(\d+)\s*ชั้น|(\d+)\s*shelf|shelf\s*(\d+)/i);return m?Math.min(Math.max(parseInt(m[1]||m[2]||m[3]),2),20):5;}()),
+    // หัวเตียง
+    noHead:/ไม่มีหัวเตียง|no.?head/i.test(e),
+    cushHead:/หัว.*หุ้ม|หุ้มผ้า|upholster/i.test(e),
+    // บานเลื่อน
+    sliding:/บานเลื่อน|slide|sliding/i.test(e),
+    // กระจก
+    mirror:/กระจก|mirror/i.test(e),
+    // ราวห้อยผ้า
+    rail:/ราวห้อย|ราว|hanging|rail/i.test(e),
+  };
+}
+
+function addWheels(mat,w,d,legH){
+  var wr=0.035;
+  [[w/2-0.1,d/2-0.1],[-(w/2-0.1),d/2-0.1],[w/2-0.1,-(d/2-0.1)],[-(w/2-0.1),-(d/2-0.1)]].forEach(function(p){
+    addCyl(mat,wr,wr*0.6,p[0],wr*0.3,p[1],Math.PI/2);
+  });
+}
+
+function addDrawers(mat,handle,w,d,startY,count,totalH){
+  var dh=totalH/count, dt=0.015;
+  for(var i=0;i<count;i++){
+    var dy=startY+dh*i+dh/2;
+    addBox(mat,w-0.06,dh-0.016,0.03,0,dy,d/2+dt);
+    addBox(mat,w-0.14,dh-0.06,0.015,0,dy,d/2+dt*2.5);
+    addCyl(handle,0.008,0.06,0,dy,d/2+0.05,null,Math.PI/2);
+  }
+}
+
+function build(type,mkey,W,D,H,extra){
+  extra=extra||'';
+  W=Math.max(Number(W)||60,1);
+  D=Math.max(Number(D)||60,1);
+  H=Math.max(Number(H)||80,1);
+  while(group3.children.length>0) group3.remove(group3.children[0]);
+
+  var c=MC[mkey]||MC.teak;
+  var isLeather=mkey==='leather';
+  var isFabric=mkey==='fabric';
+  var isMetal=mkey==='steel';
+  var isWood=!isFabric&&!isLeather&&!isMetal;
+
+  // Primary surface
+  var ma = isWood    ? mkWoodMat({a:c.a,b:c.b},0.68)
+          : isLeather ? mkLeatherMat(c.a)
+          : isFabric  ? mkFabricMat(c.a)
+          : isMetal   ? mkMetalMat(c.a)
+          : mkMat(c.a,0.6,0.1);
+
+  // Secondary / structural
+  var mb = isWood    ? mkWoodMat({a:c.b,b:Math.max(c.b-0x0c0808,0)},0.80)
+          : isLeather ? mkLeatherMat(c.b)
+          : isMetal   ? mkMetalMat(c.b)
+          : mkMat(c.b,0.85,0.05);
+
+  // Light trim / accent
+  var ml = isWood    ? mkWoodMat({a:c.c,b:Math.max(c.c-0x080604,0)},0.60)
+          : isLeather ? mkLeatherMat(c.c)
+          : isMetal   ? mkMetalMat(c.c)
+          : mkMat(c.c,0.65,0.05);
+
+  // Metal legs — always brushed steel
+  var metal=mkMetalMat(0x3A4050);
+
+  // Cushion / upholstery
+  var cush = isLeather ? mkLeatherMat(c.a)
+           : isFabric  ? mkFabricMat(c.a)
+           : mkFabricMat(0x7A8A9A);
+
+  // Gold handles — polished
+  var gold=new THREE.MeshStandardMaterial({color:0xC8A050,roughness:0.15,metalness:0.95,envMapIntensity:1.2,wireframe:wireMode});
+
+  // White bedding
+  var white=mkFabricMat(0xEEE8DF);
+
+  // Mirror
+  var mirror=new THREE.MeshStandardMaterial({color:0xDDEEFF,roughness:0.01,metalness:0.98,envMapIntensity:2.0,wireframe:wireMode});
+
+  var maxDim=Math.max(W,D,H)||60;
+  var s=2.0/maxDim*60;
+  var w=W*s*0.01, d=D*s*0.01, h=H*s*0.01;
+  var lth=0.028, ltr=0.022;
+  var ex=parseExtra(extra);
+
+  // ──── CHAIR ────
+  if(type==='chair'){
+    var legH=h*0.48, seatY=legH, seatT=0.07, bkH=h*0.56;
+    var showLeft=!ex.noArm&&!ex.rightArm;
+    var showRight=!ex.noArm&&!ex.leftArm;
+    [[w/2-lth,-d/2+lth],[-(w/2-lth),-d/2+lth],[w/2-lth,d/2-lth],[-(w/2-lth),d/2-lth]].forEach(function(p){
+      addCyl(mb,ltr,legH,p[0],legH/2,p[1]);
+    });
+    if(ex.wheels) addWheels(metal,w,d,legH);
+    addBox(mb,w-lth*3,0.018,0.018,0,legH*0.4,-d/2+lth);
+    addBox(mb,w-lth*3,0.018,0.018,0,legH*0.4,d/2-lth);
+    addBox(mb,0.018,0.018,d-lth*3,-w/2+lth,legH*0.38,0);
+    addBox(mb,0.018,0.018,d-lth*3,w/2-lth,legH*0.38,0);
+    addRoundBox(ma,w,seatT,d,0,seatY+seatT/2,0);
+    addBox(ml,w-0.03,seatT*0.4,d-0.03,0,seatY+seatT*0.8,0);
+    addRoundBox(cush,w-0.04,seatT*0.7,d-0.04,0,seatY+seatT+seatT*0.35,0);
+    addCyl(mb,ltr,bkH,-w/2+lth,seatY+bkH/2,d/2-lth);
+    addCyl(mb,ltr,bkH,w/2-lth,seatY+bkH/2,d/2-lth);
+    for(var i=0;i<3;i++) addBox(ma,w-lth*3,bkH*0.22,0.025,0,seatY+bkH*0.18+i*bkH*0.28,d/2-lth);
+    var aph=bkH*0.32, apy=seatY+seatT+aph+0.011;
+    if(showLeft){ addCyl(mb,ltr,aph,-w/2+lth,seatY+seatT+aph/2,0); addBox(ml,0.055,0.022,d*0.52,-w/2+lth,apy,d*0.04); }
+    if(showRight){ addCyl(mb,ltr,aph,w/2-lth,seatY+seatT+aph/2,0); addBox(ml,0.055,0.022,d*0.52,w/2-lth,apy,d*0.04); }
+  }
+
+  // ──── TABLE / COFFEE ────
+  else if(type==='table'||type==='coffee'){
+    var tT=h*0.055, legH2=h-tT;
+    var legMat=mkey==='mix'||mkey==='steel'?metal:mb;
+    // tabletop
+    addRoundBox(ma,w,tT,d,0,legH2+tT/2,0);
+    addBox(ml,w-0.03,tT*0.28,d-0.03,0,legH2+tT*0.86,0);
+    // 4 legs — base at y=0, top at y=legH2
+    var lw=lth*2.2;
+    var lx=w/2-lw/2, lz=d/2-lw/2;
+    [[ lx, lz],[- lx, lz],[ lx,-lz],[-lx,-lz]].forEach(function(p){
+      addBox(legMat,lw,legH2,lw,p[0],legH2/2,p[1]);
+    });
+    // cross braces เชื่อมระหว่างขา — Y สัมบูรณ์
+    var bY=legH2*0.32;
+    var bT=lth*0.8;
+    addBox(legMat,w-lw*2,bT,bT, 0,bY, lz);
+    addBox(legMat,w-lw*2,bT,bT, 0,bY,-lz);
+    addBox(legMat,bT,bT,d-lw*2, lx,bY, 0);
+    addBox(legMat,bT,bT,d-lw*2,-lx,bY, 0);
+    if(ex.wheels) addWheels(metal,w,d,legH2);
+    if(ex.drawers>0) addDrawers(ma,gold,w*0.5,d,legH2*0.5,Math.min(ex.drawers,3),legH2*0.45);
+    if(/ชั้นล่าง|lower.?shelf/i.test(extra)) addBox(ml,w-0.08,0.018,d-0.08,0,legH2*0.26,0);
+  }
+
+  // ──── SHELF ────
+  else if(type==='shelf'){
+    var panel=0.038;
+    var shelves=ex.shelves;
+    addBox(ma,panel,h,d,-w/2+panel/2,h/2,0);
+    addBox(ma,panel,h,d,w/2-panel/2,h/2,0);
+    addBox(mb,w,h,0.018,0,h/2,-d/2+0.009);
+    // หลังทึบหรือเปิด
+    if(!/เปิด|open.?back/i.test(extra)) addBox(mb,w,h,0.018,0,h/2,-d/2+0.009);
+    for(var i=0;i<=shelves;i++){
+      var sy2=h/shelves*i;
+      addBox(i===0||i===shelves?mb:ma,w-panel*2,panel,d,0,sy2+panel/2,0);
+    }
+    // ของตกแต่งชั้นล่างสุด
+    var sy1=h/shelves+panel;
+    addBox(ml,0.1,0.22,0.08,-w/2+0.18,sy1+0.12,0);
+    addBox(gold,0.055,0.14,0.055,-w/2+0.32,sy1+0.08,0);
+    addBox(ml,0.12,0.18,0.07,-w/2+0.44,sy1+0.1,0);
+    // ล้อ
+    if(ex.wheels) addWheels(metal,w,d,0);
+  }
+
+  // ──── SOFA ────
+  else if(type==='sofa'){
+    var seats=ex.seats;
+    var armT=d*0.22, bkT=d*0.22;
+    var sH=h*0.38, armH=h*0.72, bkH2=h*0.68;
+    var sY=sH/2+0.1;
+    [[w/2-0.1,d/2-0.1],[-(w/2-0.1),d/2-0.1],[w/2-0.1,-(d/2-0.1)],[-(w/2-0.1),-(d/2-0.1)]].forEach(function(p){
+      addBox(mb,0.06,0.1,0.06,p[0],0.05,p[1]);
+    });
+    addRoundBox(mb,w,sH,d,0,sY,0);
+    var cw=(w-armT*2-0.05)/seats;
+    for(var i=0;i<seats;i++){
+      addRoundBox(ma,cw-0.025,sH*0.75,d-bkT-0.06,-w/2+armT+cw/2+cw*i+0.025,sY+sH*0.38,-bkT/2);
+    }
+    addRoundBox(cush,w-armT*2,bkH2,bkT,0,sY+sH+bkH2/2,d/2-bkT/2);
+    for(var i=0;i<seats;i++){
+      addBox(ma,cw-0.05,bkH2*0.82,bkT*0.82,-w/2+armT+cw/2+cw*i+0.025,sY+sH+bkH2*0.41,d/2-bkT/2);
+    }
+    addBox(cush,armT,armH,d,-w/2+armT/2,armH/2+0.1,0);
+    addBox(cush,armT,armH,d,w/2-armT/2,armH/2+0.1,0);
+    addBox(ml,armT+0.02,0.04,d+0.02,-w/2+armT/2,armH+0.12,0);
+    addBox(ml,armT+0.02,0.04,d+0.02,w/2-armT/2,armH+0.12,0);
+    // เบาะนั่งหนุน
+    if(/หมอน|pillow|cushion/i.test(extra)){
+      for(var i=0;i<Math.min(seats,3);i++){
+        addBox(cush,cw*0.55,sH*0.55,bkT*0.5,-w/2+armT+cw/2+cw*i+0.025,sY+sH+sH*0.28,d/2-bkT*0.9);
+      }
+    }
+  }
+
+  // ──── BED ────
+  else if(type==='bed'){
+    var fT=h*0.06, legH3=0.1, hdH=ex.noHead?0:h*0.85;
+    [[w/2-0.1,d/2-0.1],[-(w/2-0.1),d/2-0.1],[w/2-0.1,-(d/2-0.1)],[-(w/2-0.1),-(d/2-0.1)]].forEach(function(p){
+      addBox(mb,0.07,legH3,0.07,p[0],legH3/2,p[1]);
+    });
+    if(ex.wheels) addWheels(metal,w,d,legH3);
+    addBox(mb,0.07,fT*4,d,-w/2+0.04,legH3+fT*2,0);
+    addBox(mb,0.07,fT*4,d,w/2-0.04,legH3+fT*2,0);
+    addBox(mb,w,fT*2,0.07,0,legH3+fT,d/2-0.04);
+    if(!ex.noHead){
+      addBox(ma,w,hdH,0.1,0,legH3+hdH/2,-d/2+0.05);
+      // หุ้มผ้า
+      if(ex.cushHead||/หุ้ม|fabric|upholster/i.test(extra)){
+        addBox(cush,w-0.12,hdH*0.72,0.06,0,legH3+hdH*0.5,-d/2+0.12);
+      }
+    }
+    addRoundBox(white,w-0.06,fT*3.2,d-0.06,0,legH3+fT*4.6,0);
+    // สีผ้าห่ม
+    var blanketColor=0x7A9080;
+    if(/แดง|red/i.test(extra)) blanketColor=0x8B3030;
+    else if(/น้ำเงิน|blue/i.test(extra)) blanketColor=0x3050A0;
+    else if(/เทา|gray|grey/i.test(extra)) blanketColor=0x707070;
+    addBox(new THREE.MeshStandardMaterial({color:blanketColor,roughness:.9,wireframe:wireMode}),w-0.1,fT*2,d*0.62,0,legH3+fT*6.5,d*0.19);
+    // จำนวนหมอน
+    var pillows=/(\d+)\s*หมอน|(\d+)\s*pillow/i.exec(extra);
+    var npil=pillows?Math.min(parseInt(pillows[1]||pillows[2]),4):2;
+    var pstep=w/(npil+1);
+    for(var i=0;i<npil;i++){
+      addBox(white,w*0.28,fT*2.2,d*0.18,-w/2+pstep*(i+1),legH3+fT*6,-d*0.35);
+    }
+    // ลิ้นชักใต้เตียง
+    if(ex.drawers>0) addDrawers(mb,gold,w-0.1,d,legH3,Math.min(ex.drawers,2),legH3*2);
+  }
+
+  // ──── CABINET ────
+  else if(type==='cabinet'){
+    var p2=0.04;
+    addBox(mb,w,h,d,0,h/2,0);
+    if(ex.sliding){
+      // บานเลื่อน
+      addBox(ma,w/2-p2,h-p2*2,0.045,-w/4+0.01,h/2,d/2+0.005);
+      addBox(ml,w/2-0.1,h-0.14,0.018,-w/4+0.01,h/2,d/2+0.03);
+      addBox(ma,w/2-p2,h-p2*2,0.035,w/4-0.01,h/2,d/2+0.015);
+      addBox(ml,w/2-0.1,h-0.14,0.018,w/4-0.01,h/2,d/2+0.04);
+      addCyl(gold,0.008,0.12,-w/4,h*0.55,d/2+0.055,null,Math.PI/2);
+      addCyl(gold,0.008,0.12,w/4,h*0.55,d/2+0.065,null,Math.PI/2);
+    } else {
+      addBox(ma,w/2-p2*1.5,h-p2*2.5,0.04,-w/4,h/2,d/2+0.001);
+      addBox(ma,w/2-p2*1.5,h-p2*2.5,0.04,w/4,h/2,d/2+0.001);
+      addBox(ml,w/2-0.12,h-0.16,0.015,-w/4,h/2,d/2+0.03);
+      addBox(ml,w/2-0.12,h-0.16,0.015,w/4,h/2,d/2+0.03);
+      addCyl(gold,0.012,0.1,-0.06,h*0.55,d/2+0.06,null,Math.PI/2);
+      addCyl(gold,0.012,0.1,0.06,h*0.55,d/2+0.06,null,Math.PI/2);
+    }
+    // กระจก
+    if(ex.mirror) addBox(mirror,w*0.38,h*0.52,0.008,0,h*0.54,d/2+0.05);
+    // ราวห้อยผ้า
+    if(ex.rail) addCyl(metal,0.008,w*0.7,0,h*0.7,-d/4,Math.PI/2);
+    // ลิ้นชัก
+    if(ex.drawers>0) addDrawers(ma,gold,w-0.08,d,h*0.05,Math.min(ex.drawers,4),h*0.35);
+    addBox(ml,w+0.02,p2,d+0.02,0,h+p2/2,0);
+    [[w/2-0.1,-d/2+0.1],[-(w/2-0.1),-d/2+0.1],[w/2-0.1,d/2-0.1],[-(w/2-0.1),d/2-0.1]].forEach(function(p){
+      addBox(mb,0.07,0.06,0.07,p[0],0.03,p[1]);
+    });
+  }
+
+  // ──── DESK ────
+  else if(type==='desk'){
+    var tT2=h*0.05, legH4=h-tT2, p2=0.04;
+    var legMat2=mkey==='mix'||mkey==='steel'?metal:mb;
+    addRoundBox(ma,w,tT2,d,0,legH4+tT2/2,0);
+    addBox(ml,w-0.03,tT2*0.3,d-0.03,0,legH4+tT2*0.85,0);
+    var sw=w*0.28;
+    // ชั้นข้าง (ถ้าไม่บอกว่าไม่เอา)
+    if(!/ไม่มีชั้น|no.?shelf/i.test(extra)){
+      addBox(mb,sw,legH4,p2,w/2-sw/2,legH4/2,d/2-0.02);
+      addBox(ma,sw-p2*2,p2,d-0.06,w/2-sw/2,legH4*0.62,0);
+      addBox(ma,sw-p2*2,p2,d-0.06,w/2-sw/2,legH4*0.32,0);
+    }
+    addBox(legMat2,lth*2,legH4,lth*2,-w/2+lth*3,legH4/2,-d/2+lth*3);
+    addBox(legMat2,lth*2,legH4,lth*2,-w/2+lth*3,legH4/2,d/2-lth*3);
+    addBox(legMat2,lth,lth,d-lth*6,-w/2+lth*3,legH4*0.3,0);
+    if(ex.wheels) addWheels(metal,w,d,legH4);
+    if(ex.drawers>0) addDrawers(ma,gold,w*0.4,d,legH4*0.3,Math.min(ex.drawers,4),legH4*0.55);
+    // จอ monitor — สมจริง
+    if(/จอ|monitor|screen/i.test(extra)){
+      var tableTop=legH4+tT2;
+      var mW=w*0.52, mH=h*0.38, mD=0.022;
+      var mX=0, mZ=-d*0.08;
+      // กรอบจอ (เส้นขอบนอก)
+      var frameMat=mkMat(0x1a1a1a,0.6,0.2);
+      addBox(frameMat,mW,mH,mD,mX,tableTop+mH/2+h*0.14,mZ);
+      // หน้าจอ (สีฟ้าอมเทา เหมือนจอสว่าง)
+      addBox(mkMat(0x1e3a5f,0.05,0.1),mW-0.022,mH-0.022,mD*0.4,mX,tableTop+mH/2+h*0.14,mZ+mD*0.35);
+      // แถบไฟ LED ล่างจอ
+      addBox(mkMat(0x334466,0.3,0.4),mW*0.3,0.008,mD*0.3,mX,tableTop+h*0.14+0.006,mZ+mD*0.4);
+      // คอจอ (neck) — บาง ตั้งตรง
+      var neckMat=mkMat(0x2a2a2a,0.5,0.3);
+      addBox(neckMat,0.03,h*0.12,0.025,mX,tableTop+h*0.07,mZ);
+      // ฐานตั้งจอ (base) — แบน กว้าง
+      addBox(neckMat,mW*0.38,0.018,d*0.15,mX,tableTop+0.009,mZ+d*0.01);
+      // ปุ่มด้านล่างจอ
+      for(var bi=0;bi<3;bi++){
+        addBox(mkMat(0x333333,0.7,0.1),0.012,0.012,0.012,mX+(-1+bi)*0.04,tableTop+mH-0.02+h*0.14,mZ-mD*0.55);
+      }
+    }
+  }
+
+  // Center vertically — ป้องกัน NaN
+  var bb=new THREE.Box3().setFromObject(group3);
+  var minY=isFinite(bb.min.y)?bb.min.y:0;
+  group3.position.y=-minY;
+  rotX=0.28; rotY=0.5;
+}
+
+// ─── Controls ───
+function resetCam(){zoom=6;rotX=0.28;rotY=0.5;autoRot=false;}
+function toggleWire(){
+  wireMode=!wireMode;
+  if(group3) group3.traverse(function(o){if(o.isMesh&&o.material)o.material.wireframe=wireMode;});
+}
+function toggleAuto(){autoRot=!autoRot;}
+var lPresets=[{a:0.55,s:2.2},{a:1.0,s:0.6},{a:1.4,s:0.0}];
+function toggleLight(){
+  lightIdx=(lightIdx+1)%3;
+  if(!scene3)return;
+  scene3.children.forEach(function(c){
+    if(c.isAmbientLight)c.intensity=lPresets[lightIdx].a;
+    if(c.name==='sun')c.intensity=lPresets[lightIdx].s;
+  });
+}
+
+// ─── Generate ───
+function gen(){
+  var type=document.getElementById('ft').value;
+  if(!type){alert('กรุณาเลือกประเภทเฟอร์นิเจอร์ก่อนครับ');return;}
+  if(typeof THREE==='undefined'){alert('โหลด Three.js ไม่สำเร็จ กรุณา refresh หน้าครับ');return;}
+
+  var style=document.getElementById('st').value||'modern';
+  var W=Number(document.getElementById('fw').value)||60;
+  var D=Number(document.getElementById('fd').value)||60;
+  var H=Number(document.getElementById('fh').value)||80;
+  var mat=document.getElementById('fm').value||'teak';
+  var extra=document.getElementById('fx').value;
+
+  setLoad(true);
+
+  // Show viewer first so canvas has size
+  document.getElementById('vc').style.display='block';
+
+  setTimeout(function(){
+    if(!renderer3) initRenderer();
+
+    build(type,mat,W,D,H,extra);
+
+    // Info
+    var letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var model=(TN[type]||type)+' รุ่น '+letters[Math.floor(Math.random()*26)]+(100+Math.floor(Math.random()*900));
+    var wgt=((W*D*H)/420000).toFixed(1);
+    var sDesc={modern:'เส้นสายสะอาด ทันสมัย',minimal:'เรียบง่าย สงบ',scandi:'อบอุ่น เป็นธรรมชาติ',industrial:'แข็งแกร่ง มีเสน่ห์',classic:'หรูหรา คลาสสิก',japan:'เรียบ สงบ เป็นธรรมชาติ'};
+
+    document.getElementById('sg').innerHTML=
+      '<div class="si"><span class="sv">'+W+'cm</span><span class="sl2">กว้าง</span></div>'+
+      '<div class="si"><span class="sv">'+D+'cm</span><span class="sl2">ยาว</span></div>'+
+      '<div class="si"><span class="sv">'+H+'cm</span><span class="sl2">สูง</span></div>'+
+      '<div class="si"><span class="sv">~'+wgt+'kg</span><span class="sl2">น้ำหนัก</span></div>';
+
+    document.getElementById('db').innerHTML=
+      '<strong style="color:var(--acc);font-family:\'Playfair Display\',serif;font-size:1.05rem">'+model+'</strong><br><br>'+
+      (TN[type]||type)+'สไตล์'+(SN[style]||style)+' ทำจาก'+(MN[mat]||mat)+'คุณภาพสูง '+(sDesc[style]||'')+
+      ' ขนาด '+W+'×'+D+'×'+H+' cm'+(extra?' มีคุณสมบัติ: '+extra:'');
+
+    var feats=[(MN[mat]||mat),'ขนาด '+W+'×'+D+'×'+H+'cm',(SN[style]||style),extra||'ทนทาน คุณภาพสูง'];
+    document.getElementById('tg').innerHTML=feats.map(function(t){return '<span class="tag">'+t+'</span>';}).join('');
+
+    document.getElementById('vc').scrollIntoView({behavior:'smooth',block:'start'});
+    setLoad(false);
+  },200);
+}
+
+function setLoad(on){
+  document.getElementById('gb').disabled=on;
+  document.getElementById('sp').style.display=on?'block':'none';
+  document.getElementById('bt').textContent=on?'กำลังสร้าง...':'✦ สร้างโมเดล 3D';
+}
+</script>
+</body>
+</html>
